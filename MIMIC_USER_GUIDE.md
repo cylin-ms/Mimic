@@ -59,3 +59,40 @@ If you already have a JSON file of your calendar events, you can skip authentica
 ```bash
 python mimic.py your.email@company.com --file my_calendar.json
 ```
+
+## Generating Workback Plans with BizChat
+
+Once Mimic generates the HTML report, you can use it to create detailed workback plans in BizChat:
+
+1.  **Select a Meeting**: In the Mimic HTML report, click on any high-value meeting.
+2.  **Copy Prompt**: Click the "Copy Prompt" button to get a specialized prompt designed for that specific meeting type.
+3.  **Generate in BizChat**: Paste the prompt into BizChat.
+4.  **Refine the Plan**: Ask BizChat to format the output as a table with the following columns:
+    *   **Milestone**: Date of the activity.
+    *   **Owner**: Person responsible.
+    *   **Completed**: Checkbox or status.
+    *   **Milestone Activity**: Description of the task.
+    *   **T-Minus**: Days remaining until the event (T-0).
+    *   **Notes**: Special attention items.
+
+    **Sample Target Output:**
+
+    | Milestone | Owner | Completed | Milestone Activity | T-Minus | Notes |
+    | :--- | :--- | :--- | :--- | :--- | :--- |
+    | 8/28 | Nicolle/Paulina | [ ] | Push email and template to POC | T-21 | |
+    | 8/31 | | [ ] | Revisit last QBR Action item | T-18 | |
+    | 9/2 | | [ ] | Check OOFs/Conflicts for Andy or delegate | T-16 | |
+    | 9/4 | Nicolle/Kristie | [ ] | Sync on QBR content | T-14 | |
+    | 9/7 | Nicolle | [ ] | Draft QBR content for XLT review | T-11 | |
+    | 9/8 | Kristie/Nicolle | [ ] | Align on Topics XLT meeting | T-10 | |
+    | 9/10 | Nicolle | [ ] | Close gaps from QBR deck | T-8 | |
+    | 9/15 | Nicolle/Kristie | [ ] | **Slides Due** | T-3 | Critical Deadline |
+    | 9/16 | Kristie | [ ] | Andy to review and approve final content | T-2 | End of Day task |
+    | 9/18 | All | [ ] | **CXA QBR Event** | T-0 | |
+    | 9/19 | Kristie/Paulina | [ ] | Update QBR Action Items | T+1 | |
+
+5.  **Share & Save**:
+    *   When satisfied, type `/share` in BizChat.
+    *   This creates a share card with a **DevUI link**.
+    *   Click the link to save the result (valid for 28 days).
+    *   Use the **ContextFlow** tool to extract the interaction trace for later processing.

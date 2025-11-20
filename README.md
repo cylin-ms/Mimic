@@ -93,3 +93,11 @@ The input JSON should be a list of meeting objects or an object with an `events`
 - **Base Model**: Qwen3-Embedding (0.6B parameters)
 - **Calibration**: Linear regression against Qwen3-30B ground truth.
 - **Logic**: Semantic similarity to "High Value" vs "Low Value" anchors + Attendee count boost.
+
+## Workback Plan Workflow
+
+1.  **Generate Report**: Run Mimic to identify high-value meetings.
+2.  **Get Prompt**: Copy the AI-optimized prompt from the Mimic report.
+3.  **BizChat**: Paste into BizChat to generate a detailed workback plan (Milestones, Owners, T-Minus schedule).
+4.  **Share**: Use `/share` in BizChat to generate a DevUI link.
+5.  **Extract**: Use ContextFlow to capture the interaction trace.
