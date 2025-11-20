@@ -12,6 +12,8 @@ import time
 import argparse
 import requests
 import webbrowser
+import platform
+import os
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
@@ -342,8 +344,71 @@ class MimicTool:
         self.classifier = None
         
     def authenticate(self):
+        """Authenticate user based on platform"""
+        system = platform.system()
+        
+        if system == "Windows":
+            return self.authenticate_windows()
+        else:
+            return self.authenticate_device_flow()
+
+    def authenticate_windows(self):
+        """Authenticate using MSAL on Windows (supports SSO/Broker)"""
+        print("\n🔐 Authenticating via Windows (MSAL)...")
+        try:
+            import msal
+        except ImportError:
+            print("⚠️ MSAL not installed. Falling back to Device Code Flow.")
+            return self.authenticate_device_flow()
+
+        # Cache setup
+        cache = msal.SerializableTokenCache()
+        cache_file = Path("token_cache.bin")
+        if cache_file.exists():
+            try:
+                cache.deserialize(open(cache_file, "r").read())
+            except:
+                pass
+
+        # Setup App
+        app = msal.PublicClientApplication(
+            CLIENT_ID,
+            authority=f"https://login.microsoftonline.com/{TENANT_ID}",
+            token_cache=cache
+        )
+        
+        scopes = ["https://graph.microsoft.com/.default", "offline_access"]
+        result = None
+        
+        # 1. Try Silent (Cached)
+        accounts = app.get_accounts()
+        if accounts:
+            print(f"   Found account: {accounts[0]['username']}")
+            result = app.acquire_token_silent(scopes, account=accounts[0])
+            
+        # 2. Try Interactive
+        if not result:
+            print("   No silent token found. Launching interactive login...")
+            try:
+                result = app.acquire_token_interactive(scopes=scopes)
+            except Exception as e:
+                print(f"❌ Interactive auth failed: {e}")
+                
+        if result and "access_token" in result:
+            self.access_token = result["access_token"]
+            print("✅ Authentication successful!")
+            # Save cache
+            if cache.has_state_changed:
+                with open(cache_file, "w") as f:
+                    f.write(cache.serialize())
+            return True
+        else:
+            print("⚠️ Windows auth failed or cancelled. Falling back to Device Code Flow.")
+            return self.authenticate_device_flow()
+
+    def authenticate_device_flow(self):
         """Authenticate using Device Code Flow"""
-        print("\n🔐 Authenticating with Microsoft Graph...")
+        print("\n🔐 Authenticating with Microsoft Graph (Device Flow)...")
         
         # 1. Get Device Code
         url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/devicecode"
