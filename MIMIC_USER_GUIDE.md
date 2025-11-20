@@ -9,13 +9,21 @@ Mimic is an AI-powered tool that analyzes your calendar to identify high-value m
 
 ## Setup
 
-1.  **Install Dependencies**:
+1.  **Install Dependencies & Download Model**:
+    The setup script will create a virtual environment, install required packages, and automatically download the Qwen3-Embedding model (~1.1GB).
+
     ```bash
     # macOS / Linux
     ./setup.sh
 
     # Windows
     setup.bat
+    ```
+
+    *Note: If the model download fails during setup, you can retry it manually:*
+    ```bash
+    source venv/bin/activate  # or venv\Scripts\activate on Windows
+    python download_model.py
     ```
 
 ## Usage

@@ -13,6 +13,8 @@ This package provides a high-performance, calibrated AI model for estimating the
 
 ## Installation
 
+The setup process will install Python dependencies and automatically download the required AI model (Qwen3-Embedding, ~1.1GB).
+
 ### macOS / Linux
 
 1. Open a terminal.
@@ -23,10 +25,18 @@ This package provides a high-performance, calibrated AI model for estimating the
    ./setup.sh
    ```
 
+   *If the model download fails, activate the environment and run `python download_model.py` manually.*
+
 ### Windows
 
 1. Open Command Prompt or PowerShell.
 2. Run the setup script:
+
+   ```cmd
+   setup.bat
+   ```
+
+   *If the model download fails, activate the environment and run `python download_model.py` manually.*
 
    ```cmd
    setup.bat
