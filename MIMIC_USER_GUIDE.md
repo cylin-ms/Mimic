@@ -96,4 +96,4 @@ Once Mimic generates the HTML report, you can use it to create detailed workback
     *   This creates a share card with a **DevUI link**.
     *   **Copy the link** and paste it into the **DevUI Link** field for that meeting in the Mimic interface.
     *   Add any additional comments about your analysis experience in the corresponding fields.
-    *   Use the **ContextFlow** tool to extract the interaction trace for later processing.
+    *   *Note: The **ContextFlow** extraction step is coming soon. For now, simply saving the DevUI link is sufficient.*
