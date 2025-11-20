@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizChat DevUI Test Prompts Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .filters {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .prompts-list {
+            padding: 20px;
+        }
+
+        .prompt-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .prompt-card.completed {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .prompt-card.in-progress {
+            border-color: #ffc107;
+            background: #fffef8;
+        }
+
+        .prompt-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .prompt-header {
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            cursor: pointer;
+        }
+
+        .prompt-title {
+            flex: 1;
+        }
+
+        .prompt-title h3 {
+            font-size: 18px;
+            color: #212529;
+            margin-bottom: 8px;
+        }
+
+        .prompt-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-high {
+            background: #ffe5e5;
+            color: #dc3545;
+        }
+
+        .badge-medium {
+            background: #fff3cd;
+            color: #ffc107;
+        }
+
+        .badge-low {
+            background: #d4edda;
+            color: #28a745;
+        }
+
+        .badge-category {
+            background: #e7f3ff;
+            color: #0066cc;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-not-started {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        .status-in-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .toggle-icon {
+            font-size: 20px;
+            color: #6c757d;
+            transition: transform 0.3s;
+        }
+
+        .toggle-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .prompt-body {
+            padding: 20px;
+            display: none;
+        }
+
+        .prompt-body.expanded {
+            display: block;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .prompt-text {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 6px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-field.has-value {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        textarea.input-field {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .auto-save-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .auto-save-indicator.show {
+            opacity: 1;
+        }
+
+        .save-icon {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #28a745;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .save-icon.saved {
+            border: none;
+            background: #28a745;
+            animation: none;
+        }
+
+        .save-icon.saved::before {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .export-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .export-btn {
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            background: #6a3f92;
+            transform: scale(1.02);
+        }
+
+        .expected-tools {
+            background: #e7f3ff;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #0066cc;
+        }
+
+        .expected-tools ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .filter-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 BizChat DevUI Test Prompts Manager</h1>
+            <p>TimeBerry T+P | November 18, 2025</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="total-count">11</div>
+                <div class="stat-label">Total Prompts</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="completed-count">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="in-progress-count">0</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="not-started-count">11</div>
+                <div class="stat-label">Not Started</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div style="font-weight: 600; margin-right: 10px;">Filter:</div>
+            <button class="filter-btn active" data-filter="all">All Prompts</button>
+            <button class="filter-btn" data-filter="high">High Complexity</button>
+            <button class="filter-btn" data-filter="medium">Medium Complexity</button>
+            <button class="filter-btn" data-filter="low">Low Complexity</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+            <button class="filter-btn" data-filter="in-progress">In Progress</button>
+            <button class="filter-btn" data-filter="not-started">Not Started</button>
+        </div>
+
+        <div class="prompts-list" id="prompts-list"></div>
+
+        <div class="export-section">
+            <h3 style="color: #333; margin-bottom: 15px; font-size: 20px;">📤 Submit Your Data</h3>
+            <p style="color: #666; margin-bottom: 20px;">
+                When you've completed your prompts, create a submission package to share with your team lead.
+            </p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button class="export-btn" onclick="createSubmissionPackage()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    📦 Create Submission Package
+                </button>
+                <button class="export-btn" onclick="exportData()" style="flex: 1; min-width: 200px; background: #4CAF50;">
+                    📥 Export JSON Only
+                </button>
+                <button class="export-btn" onclick="exportForRegeneration()" style="flex: 1; min-width: 200px; background: #FF9800;">
+                    💾 Export for Regeneration
+                </button>
+            </div>
+            <p style="color: #888; margin-top: 12px; font-size: 13px;">
+                💡 Tip: Use "Create Submission Package" for easy sharing. It downloads 3 files with metadata and instructions.
+            </p>
+        </div>
+    </div>
+
+    <div class="auto-save-indicator" id="auto-save">
+        <div class="save-icon" id="save-icon"></div>
+        <span id="save-text">Saving...</span>
+    </div>
+
+    <script>
+        const PROMPTS_DATA = [
+            {
+                id: 1,
+                title: "Quarterly Business Review (QBR)",
+                category: "Strategic Planning",
+                complexity: "high",
+                leadTime: 45,
+                realMeeting: "STCA Monthly Extended PLT + Managers (180 attendees)",
+                prompt: `I have an upcoming Quarterly Business Review titled "STCA Monthly Extended PLT + Managers" scheduled for August 1, 2025 at 9:00 AM with 180 attendees.
+
+Please find and access this specific event on my calendar (search for: "STCA Monthly Extended PLT + Managers" on August 1, 2025 at 9:00 AM) to get the complete details including:
+- Full attendee list with names and emails
+- Meeting location: Building 92, Conference Room A
+- Meeting description and agenda
+- Any attached documents or related materials
+
+Then create a detailed workback plan that includes:
+1. All key milestones leading up to the meeting
+2. Specific tasks with owners assigned from the actual attendee list
+3. Dependencies between tasks
+4. Critical path activities
+5. Risk mitigation strategies
+
+Please consider:
+- Use the actual attendee names from this calendar event for task assignments
+- Reference the meeting location for any venue/setup tasks
+- Check for related emails, documents, or previous meeting notes
+- Coordinate across teams based on attendee organizational roles
+
+Generate a comprehensive workback plan that ensures successful meeting preparation.`,
+                expectedTools: [
+                    "graph_calendar_get_events",
+                    "graph_get_people",
+                    "graph_get_manager",
+                    "bizchat_context",
+                    "bizchat_recommendations",
+                    "substrate_meeting_prep"
+                ],
+                status: "not-started",
+                devuiLink: "",
+                sessionId: "",
+                dateCaptured: "",
+                toolsObserved: "",
+                zeroShotFeedback: "",
+                overallFeedback: "",
+                notes: ""
+            },
+            {
+                id: 2,
+                title: "Product Launch",
+                category: "Product Management",
+                complexity: "high",
+                leadTime: 90,
+                realMeeting: "M365 Copilot Feature Release",
+                prompt: `I have an upcoming product launch event titled "M365 Copilot Feature Release".
+
+Please find and access this specific event on my calendar (search for: "M365 Copilot Feature Release") to retrieve:
+- Complete attendee list with names, emails, and roles
+- Meeting location: Virtual - Microsoft Teams
+- Event description and launch details
+- Any linked documents, presentations, or launch materials
+
+Then create a detailed workback plan that includes:
+1. All key milestones leading up to the launch
+2. Specific tasks with owners from the actual attendee list
+3. Dependencies between tasks
+4. Critical path activities
+5. Risk mitigation strategies
+
+Please consider:
+- Identify product, marketing, and support team members from the attendee list
+- Use actual attendee names for task ownership and responsibilities
+- Reference the launch scope and timeline from the meeting description
+- Check for related product roadmap documents or specifications
+- Coordinate cross-functional teams based on attendee roles
+
+Generate a comprehensive workback plan that ensures successful product launch.`,
+                expectedTools: [
+                    "graph_calendar_get_events",
+                    "graph_get_people",
+                    "graph_get_document",
+                    "bizchat_search_documents",
+                    "ado_get_work_items"
+                ],
+                status: "not-started",
+                devuiLink: "",
+                sessionId: "",
+                dateCaptured: "",
+                toolsObserved: "",
+                zeroShotFeedback: "",
+                overallFeedback: "",
+                notes: ""
+            },
+            {
+                id: 3,
+                title: "Conference/Event Preparation",
+                category: "Events & Communications",
+                complexity: "medium",
+                leadTime: 45,
+                realMeeting: "FY26 APRD Engineering Summit on Nov 25",
+                prompt: `I have an upcoming conference event titled "FY26 APRD Engineering Summit" scheduled for November 25, 2025.
+
+Please find and access this specific calendar event (search for: "FY26 APRD Engineering Summit" on November 25, 2025) to retrieve:
+- Full attendee list identifying speakers, organizers, VIPs, and participants
+- Event venue and location details: Building 33, Conference Center
+- Conference description, themes, and session topics
+- Any planning documents or speaker materials
+
+Then create a detailed workback plan that includes:
+1. All key milestones leading up to the conference
+2. Specific tasks with owners from the attendee/organizer list
+3. Dependencies between tasks
+4. Critical path activities
+5. Risk mitigation strategies
+
+Please consider:
+- Identify speakers, session chairs, and organizing committee from attendee list
+- Use the venue location for logistics planning (AV, catering, setup)
+- Reference conference themes from the meeting description
+- Assign speaker coordination tasks to actual organizer names
+- Plan venue setup based on the actual location details
+
+Generate a comprehensive workback plan that ensures successful conference execution.`,
+                expectedTools: [
+                    "graph_calendar_get_events",
+                    "graph_get_people",
+                    "graph_send_mail",
+                    "bizchat_search"
+                ],
+                status: "not-started",
+                devuiLink: "",
+                sessionId: "",
+                dateCaptured: "",
+                toolsObserved: "",
+                zeroShotFeedback: "",
+                overallFeedback: "",
+                notes: ""
+            },
+            {
+                id: 4,
+                title: "Executive Presentation",
+                category: "Leadership Communications",
+                complexity: "medium",
+                leadTime: 21,
+                realMeeting: "STCA Monthly Extended PLT + Managers (180 attendees)",
+                prompt: `I have an upcoming executive presentation titled "STCA Monthly Extended PLT + Managers" scheduled for August 1, 2025 at 2:00 PM.
+
+Please find and access this specific calendar event (search for: "STCA Monthly Extended PLT + Managers" on August 1, 2025 at 2:00 PM) to retrieve:
+- Complete list of executive attendees with names and titles
+- Presentation venue: Building 92, Executive Boardroom
+- Meeting description and presentation topics
+- Any pre-shared materials or agenda documents
+
+Then create a detailed workback plan that includes:
+1. All key milestones leading up to the presentation
+2. Specific tasks with owners identified from the attendee list
+3. Dependencies between tasks (data collection, slide creation, reviews)
+4. Critical path activities
+5. Risk mitigation strategies
+
+Please consider:
+- Identify the executive audience from the attendee list (VPs, SVPs, C-level)
+- Assign slide creation and review tasks to actual people on the invite
+- Reference the presentation topics from the meeting description
+- Check for related strategic documents or previous presentations
+- Plan rehearsals with the actual presenters from the attendee list
+
+Generate a comprehensive workback plan that ensures a successful executive presentation.`,
+                expectedTools: [
+                    "graph_calendar_get_events",
+                    "graph_get_document",
+                    "bizchat_search",
+                    "graph_get_people"
+                ],
+                status: "not-started",
+                devuiLink: "",
+                sessionId: "",
+                dateCaptured: "",
+                toolsObserved: "",
+                zeroShotFeedback: "",
+                overallFeedback: "",
+                notes: ""
+            },
+            {
+                id: 5,
+                title: "Budget Planning",
+                category: "Financial Planning",
+                complexity: "medium",
+                leadTime: 30,
+                realMeeting: "FY26 Q1 Business Review (118 attendees)",
+                prompt: `I have an upcoming budget planning meeting titled "FY26 Q1 Business Review" scheduled for November 20, 2025 at 3:00 PM with 118 stakeholders.
+
+Please find and access this specific calendar event (search for: "FY26 Q1 Business Review" on November 20, 2025 at 3:00 PM) to retrieve:
+- Complete attendee list with budget owners, finance team, and approvers
+- Meeting location: Building 34, Finance Conference Room
+- Budget planning scope and fiscal period from meeting description
+- Any linked budget templates or financial documents
+
+Then create a detailed workback plan that includes:
+1. All key milestones leading up to the budget approval
+2. Specific tasks with owners identified from the attendee list
+3. Dependencies between tasks (data collection, analysis, reviews, approvals)
+4. Critical path activities
+5. Risk mitigation strategies
+
+Please consider:
+- Identify finance team members, budget owners, and executives from attendee list
+- Assign data collection tasks to actual department representatives
+- Reference the budget scope and fiscal period from meeting description
+- Check for related financial planning documents or templates
+- Map approval workflow to actual executive names on the invite
+
+Generate a comprehensive workback plan that ensures successful budget planning and approval.`,
+                expectedTools: [
+                    "graph_calendar_get_events",
+                    "graph_get_document",
+                    "bizchat_search_documents",
+                    "graph_get_people"
+                ],
+                status: "not-started",
+                devuiLink: "",
+                sessionId: "",
+                dateCaptured: "",
+                toolsObserved: "",
+                zeroShotFeedback: "",
+                overallFeedback: "",
+                notes: ""
+            },
+            {
+                id: 6,
+                title: "Project Kickoff",
+                category: "Project Management",
+                complexity: "medium",
+                leadTime: 14,
+                realMeeting: "FY26 STCA Kickoff All Hands (61 attendees)",
+                prompt: `I have an upcoming project kickoff meeting titled "FY26 STCA Kickoff All Hands" scheduled for September 9, 2025 at 10:30 AM with 61 attendees.
+
+Please find and access this specific calendar event (search for: "FY26 STCA Kickoff All Hands" on September 9, 2025 at 10:30 AM) to retrieve:
+- Complete attendee list with names, emails, and roles
+- Meeting location: Building 99, Main Auditorium
+- Project scope and objectives from meeting description
+- Any linked project charter or planning documents
+
+Then create a detailed workback plan that includes:
+1. All key milestones leading up to the kickoff
+2. Specific tasks with owners from the actual attendee list
+3. Dependencies between tasks
+4. Critical path activities
+5. Risk mitigation strategies
+
+Please consider:
+- Identify project team members, stakeholders, and sponsors from attendee list
+- Use actual attendee names for role assignments and responsibilities
+- The kickoff requires project charter, scope definition, and team alignment
+- Project timeline and milestones need to be established
+- Communication plan and collaboration tools need to be set up
+- Success metrics and KPIs should be defined
+
+Generate a comprehensive workback plan that ensures successful project kickoff.`,
+                expectedTools: [
+                    "graph_calendar_get_events",
+                    "graph_get_people",
+                    "ado_get_work_items",
+                    "bizchat_search"
+                ],
+                status: "not-started",
+                devuiLink: "",
+                sessionId: "",
+                dateCaptured: "",
+                toolsObserved: "",
+                zeroShotFeedback: "",
+                overallFeedback: "",
+                notes: ""
+            },
+            {
+                id: 7,
+                title: "Hiring Committee",
+                category: "Talent Acquisition",
+                complexity: "low",
+                leadTime: 7,
+                realMeeting: "Virtual Interview for Senior Applied Scientist(LLM) (5 attendees)",
+                prompt: `I have an upcoming interview titled "Virtual Interview for Senior Applied Scientist(LLM)" scheduled for October 24, 2025 at 2:00 PM with 5 interviewers.
+
+Please find and access this specific calendar event (search for: "Virtual Interview for Senior Applied Scientist(LLM)" on October 24, 2025 at 2:00 PM) to retrieve:
+- Complete interview panel list with interviewer names and roles
+- Interview location: Virtual - Microsoft Teams
+- Candidate information and position details from meeting description
+- Any linked candidate materials or job descriptions
+
+Then create a detailed workback plan that includes:
+1. All key milestones leading up to the interview
+2. Specific tasks with owners from the interview panel
+3. Dependencies between tasks
+4. Critical path activities
+5. Risk mitigation strategies
+
+Please consider:
+- Identify interviewers and their evaluation focus areas from attendee list
+- Assign interview preparation tasks to actual panel members
+- Reference interview location for logistics (on-site vs. virtual setup)
+- Interview panel needs to review candidate resume and materials
+- Interview questions and evaluation criteria need to be prepared
+- Technical assessment or case study should be ready
+- Interview schedule and logistics need to be coordinated
+- Debrief session and feedback collection process should be planned
+
+Generate a comprehensive workback plan that ensures successful candidate evaluation.`,
+                expectedTools: [
+                    "graph_calendar_get_events",
+                    "graph_get_people",
+                    "graph_send_mail",
+                    "bizchat_search_documents"
+                ],
+                status: "not-started",
+                devuiLink: "",
+                sessionId: "",
+                dateCaptured: "",
+                toolsObserved: "",
+                zeroShotFeedback: "",
+                overallFeedback: "",
+                notes: ""
+            },
+            {
+                id: 8,
+                title: "Agentic Memory Workshop",
+                category: "Research & Innovation",
+                complexity: "medium",
+                leadTime: 60,
+                realMeeting: "AI PM Boot Camp English on August 8",
+                prompt: `I have an upcoming training boot camp titled "AI PM Boot Camp English" scheduled for August 8, 2025.
+
+Please find and access this specific calendar event (search for: "AI PM Boot Camp English" on August 8, 2025) to retrieve:
+- Complete attendee list with participant names and trainers
+- Training venue and logistics details
+- Boot camp curriculum, objectives, and agenda from meeting description
+- Any linked materials, course content, or preparation documents
+
+Then create a detailed workback plan that includes:
+1. All key milestones leading up to the boot camp
+2. Specific tasks with owners from the attendee/organizer list
+3. Dependencies between tasks
+4. Critical path activities
+5. Risk mitigation strategies
+
+Please consider:
+- Identify trainers, facilitators, and organizing team from attendee list
+- Use actual attendee names for content development and facilitation
+- Reference training venue for logistics planning (AV, seating, materials)
+- Determine training modules and session themes from meeting description
+- Trainer confirmation and content preparation deadlines
+- Training material development and review cycles
+- Participant invitation and registration management
+- Pre-reading materials and prerequisites for participants
+- Hands-on exercises and lab setup preparation
+- Technical setup for demos and interactive sessions
+- Training agenda finalization and time allocation
+- Post-training assessments and follow-up resources
+
+Generate a comprehensive workback plan that ensures a successful training boot camp.`,
+                expectedTools: [
+                    "graph_calendar_get_events",
+                    "graph_get_people",
+                    "graph_get_manager",
+                    "graph_get_document",
+                    "bizchat_search_documents",
+                    "bizchat_search",
+                    "graph_send_mail",
+                    "loki_get_person_recap"
+                ],
+                status: "not-started",
+                devuiLink: "",
+                sessionId: "",
+                dateCaptured: "",
+                toolsObserved: "",
+                zeroShotFeedback: "",
+                overallFeedback: "",
+                notes: ""
+            }
+        ];
+
+        let currentData = loadData();
+        let currentFilter = 'all';
+
+        function loadData() {
+            const saved = localStorage.getItem('bizchat_prompts_data');
+            
+            // Create default data structure
+            const defaultData = PROMPTS_DATA.map(p => ({
+                ...p,
+                status: 'not-started',
+                devuiLink: '',
+                sessionId: '',
+                dateCaptured: '',
+                toolsObserved: '',
+                zeroShotFeedback: '',
+                overallFeedback: '',
+                notes: ''
+            }));
+            
+            if (saved) {
+                const savedData = JSON.parse(saved);
+                
+                // Merge: keep saved user data, add new prompts if any
+                const mergedData = defaultData.map(defaultPrompt => {
+                    const savedPrompt = savedData.find(s => s.id === defaultPrompt.id);
+                    if (savedPrompt) {
+                        // Keep user's saved data but update prompt text/details from PROMPTS_DATA
+                        return {
+                            ...defaultPrompt,
+                            status: savedPrompt.status,
+                            devuiLink: savedPrompt.devuiLink,
+                            sessionId: savedPrompt.sessionId,
+                            dateCaptured: savedPrompt.dateCaptured,
+                            toolsObserved: savedPrompt.toolsObserved,
+                            zeroShotFeedback: savedPrompt.zeroShotFeedback || '',
+                            overallFeedback: savedPrompt.overallFeedback || '',
+                            notes: savedPrompt.notes
+                        };
+                    }
+                    return defaultPrompt;
+                });
+                
+                return mergedData;
+            }
+            
+            return defaultData;
+        }
+
+        function saveData() {
+            localStorage.setItem('bizchat_prompts_data', JSON.stringify(currentData));
+            showAutoSave();
+        }
+
+        function showAutoSave() {
+            const indicator = document.getElementById('auto-save');
+            const icon = document.getElementById('save-icon');
+            const text = document.getElementById('save-text');
+            
+            icon.classList.remove('saved');
+            text.textContent = 'Saving...';
+            indicator.classList.add('show');
+            
+            setTimeout(() => {
+                icon.classList.add('saved');
+                text.textContent = 'Saved!';
+                
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 1500);
+            }, 500);
+        }
+
+        function updateStats() {
+            const total = currentData.length;
+            const completed = currentData.filter(p => p.status === 'completed').length;
+            const inProgress = currentData.filter(p => p.status === 'in-progress').length;
+            const notStarted = currentData.filter(p => p.status === 'not-started').length;
+
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('in-progress-count').textContent = inProgress;
+            document.getElementById('not-started-count').textContent = notStarted;
+        }
+
+        function renderPrompts() {
+            const container = document.getElementById('prompts-list');
+            container.innerHTML = '';
+
+            let filteredData = currentData;
+            
+            if (currentFilter !== 'all') {
+                if (['high', 'medium', 'low'].includes(currentFilter)) {
+                    filteredData = currentData.filter(p => p.complexity === currentFilter);
+                } else {
+                    filteredData = currentData.filter(p => p.status === currentFilter);
+                }
+            }
+
+            filteredData.forEach(prompt => {
+                const card = createPromptCard(prompt);
+                container.appendChild(card);
+            });
+
+            updateStats();
+        }
+
+        function createPromptCard(prompt) {
+            const card = document.createElement('div');
+            card.className = `prompt-card ${prompt.status}`;
+            card.dataset.id = prompt.id;
+
+            const statusClass = `status-${prompt.status}`;
+            const statusText = prompt.status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            const complexityClass = `badge-${prompt.complexity}`;
+
+            card.innerHTML = `
+                <div class="prompt-header" onclick="togglePrompt(${prompt.id})">
+                    <div class="prompt-title">
+                        <h3>${prompt.id}. ${prompt.title}</h3>
+                        <div class="prompt-meta">
+                            <span class="badge ${complexityClass}">${prompt.complexity} complexity</span>
+                            <span class="badge badge-category">${prompt.category}</span>
+                            <span class="badge badge-category">${prompt.leadTime} days lead time</span>
+                        </div>
+                    </div>
+                    <div class="status-indicator">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                        <span class="toggle-icon" id="toggle-${prompt.id}">▼</span>
+                    </div>
+                </div>
+                <div class="prompt-body" id="body-${prompt.id}">
+                    <div class="section">
+                        <div class="section-title">Meeting Details</div>
+                        <div class="metadata-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                            <div class="meta-item">
+                                <div class="meta-label" style="font-size: 11px; color: #6c757d; text-transform: uppercase; font-weight: 600;">Category</div>
+                                <div class="meta-value" style="font-size: 13px; color: #333; font-weight: 500;">${prompt.category}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label" style="font-size: 11px; color: #6c757d; text-transform: uppercase; font-weight: 600;">Complexity</div>
+                                <div class="meta-value" style="font-size: 13px; color: #333; font-weight: 500;">${prompt.complexity}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label" style="font-size: 11px; color: #6c757d; text-transform: uppercase; font-weight: 600;">Lead Time</div>
+                                <div class="meta-value" style="font-size: 13px; color: #333; font-weight: 500;">${prompt.leadTime} days</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label" style="font-size: 11px; color: #6c757d; text-transform: uppercase; font-weight: 600;">Your Role</div>
+                                <div class="meta-value" style="font-size: 13px; color: #333; font-weight: 500;">${prompt.userRole}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label" style="font-size: 11px; color: #6c757d; text-transform: uppercase; font-weight: 600;">📅 Meeting Date</div>
+                                <div class="meta-value" style="font-size: 13px; color: #333; font-weight: 500;">${prompt.meetingDate}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label" style="font-size: 11px; color: #6c757d; text-transform: uppercase; font-weight: 600;">📍 Location</div>
+                                <div class="meta-value" style="font-size: 13px; color: #333; font-weight: 500;">${prompt.location}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label" style="font-size: 11px; color: #6c757d; text-transform: uppercase; font-weight: 600;">👤 Organizer</div>
+                                <div class="meta-value" style="font-size: 13px; color: #333; font-weight: 500;">${prompt.organizer}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label" style="font-size: 11px; color: #6c757d; text-transform: uppercase; font-weight: 600;">👥 Attendees</div>
+                                <div class="meta-value" style="font-size: 13px; color: #333; font-weight: 500;">${prompt.attendees} people</div>
+                            </div>
+                        </div>
+                        <p style="color: #6c757d; font-size: 13px; margin-bottom: 10px;"><strong>Description:</strong> ${prompt.description || prompt.realMeeting || ''}</p>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">BizChat Prompt</div>
+                        <div class="prompt-text">${prompt.prompt}</div>
+                        <button class="copy-btn" onclick="copyPrompt(${prompt.id}, this)">📋 Copy Prompt</button>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">Expected Tool Calls</div>
+                        <div class="expected-tools">
+                            <ul>
+                                ${prompt.expectedTools.map(tool => `<li><code>${tool}</code></li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">DevUI Data Collection</div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Status</label>
+                            <select class="input-field" id="status-${prompt.id}" onchange="updateField(${prompt.id}, 'status', this.value)">
+                                <option value="not-started" ${prompt.status === 'not-started' ? 'selected' : ''}>⬜ Not Started</option>
+                                <option value="in-progress" ${prompt.status === 'in-progress' ? 'selected' : ''}>☑️ In Progress</option>
+                                <option value="completed" ${prompt.status === 'completed' ? 'selected' : ''}>✅ Completed</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">DevUI Link *</label>
+                            <input type="url" class="input-field ${prompt.devuiLink ? 'has-value' : ''}" 
+                                   id="devuiLink-${prompt.id}" 
+                                   value="${prompt.devuiLink || ''}"
+                                   placeholder="Paste DevUI link here..."
+                                   oninput="updateField(${prompt.id}, 'devuiLink', this.value)">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Session ID</label>
+                            <input type="text" class="input-field ${prompt.sessionId ? 'has-value' : ''}" 
+                                   id="sessionId-${prompt.id}" 
+                                   value="${prompt.sessionId || ''}"
+                                   placeholder="e.g., session_20251118_001"
+                                   oninput="updateField(${prompt.id}, 'sessionId', this.value)">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Date Captured</label>
+                            <input type="datetime-local" class="input-field ${prompt.dateCaptured ? 'has-value' : ''}" 
+                                   id="dateCaptured-${prompt.id}" 
+                                   value="${prompt.dateCaptured || ''}"
+                                   oninput="updateField(${prompt.id}, 'dateCaptured', this.value)">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">🎯 Zero-Shot Response Feedback</label>
+                            <div style="font-size: 12px; color: #6c757d; margin-bottom: 8px; font-style: italic;">
+                                After copying the prompt and seeing BizChat's first response, please evaluate:
+                                • Did it access the calendar event correctly?
+                                • Quality of the workback plan structure
+                                • Were actual attendee names used?
+                                • Meeting location referenced appropriately?
+                                • Tool calls accuracy (graph_calendar_get_events, etc.)
+                                • Any errors or missing information?
+                            </div>
+                            <textarea class="input-field ${prompt.zeroShotFeedback ? 'has-value' : ''}" 
+                                      id="zeroShotFeedback-${prompt.id}" 
+                                      placeholder="Enter your impressions of BizChat's initial response here..."
+                                      rows="4"
+                                      oninput="updateField(${prompt.id}, 'zeroShotFeedback', this.value)">${prompt.zeroShotFeedback || ''}</textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">💬 Overall Session Feedback</label>
+                            <div style="font-size: 12px; color: #6c757d; margin-bottom: 8px; font-style: italic;">
+                                After completing the entire chat session, please share:
+                                • Overall quality of the workback plan
+                                • Multi-turn conversation effectiveness
+                                • Usefulness for actual meeting preparation
+                                • Comparison to your expectations
+                                • Key strengths and weaknesses
+                                • Suggestions for improvement
+                            </div>
+                            <textarea class="input-field ${prompt.overallFeedback ? 'has-value' : ''}" 
+                                      id="overallFeedback-${prompt.id}" 
+                                      placeholder="Enter your overall impression after completing the session..."
+                                      rows="4"
+                                      oninput="updateField(${prompt.id}, 'overallFeedback', this.value)">${prompt.overallFeedback || ''}</textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Notes</label>
+                            <textarea class="input-field ${prompt.notes ? 'has-value' : ''}" 
+                                      id="notes-${prompt.id}" 
+                                      placeholder="Any observations, issues, or additional notes..."
+                                      oninput="updateField(${prompt.id}, 'notes', this.value)">${prompt.notes || ''}</textarea>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn btn-success" onclick="markCompleted(${prompt.id})">✅ Mark as Completed</button>
+                            <button class="btn btn-secondary" onclick="clearData(${prompt.id})">🗑️ Clear All Data</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function togglePrompt(id) {
+            const body = document.getElementById(`body-${id}`);
+            const icon = document.getElementById(`toggle-${id}`);
+            
+            body.classList.toggle('expanded');
+            icon.classList.toggle('expanded');
+        }
+
+        function updateField(id, field, value) {
+            const prompt = currentData.find(p => p.id === id);
+            if (prompt) {
+                prompt[field] = value;
+                
+                // Auto-extract Session ID and Date from DevUI link
+                if (field === 'devuiLink' && value) {
+                    autoExtractFromDevUILink(id, value);
+                }
+                
+                saveData();
+                
+                // Update visual feedback
+                const input = document.getElementById(`${field}-${id}`);
+                if (input && value) {
+                    input.classList.add('has-value');
+                } else if (input) {
+                    input.classList.remove('has-value');
+                }
+
+                // Re-render if status changed
+                if (field === 'status') {
+                    renderPrompts();
+                }
+            }
+        }
+
+        function autoExtractFromDevUILink(id, devuiLink) {
+            try {
+                console.log('Auto-extracting from:', devuiLink);
+                const url = new URL(devuiLink);
+                
+                // Extract session ID from URL patterns like:
+                // - /sessions/session_123
+                // - ?sessionId=... or ?sharedSessionId=... or ?sid=... or ?session=...
+                let sessionId = '';
+                
+                // Try path-based session ID
+                const pathMatch = url.pathname.match(/\/sessions?\/([^\/\?]+)/i);
+                if (pathMatch) {
+                    sessionId = pathMatch[1];
+                    console.log('Extracted session ID from path:', sessionId);
+                }
+                
+                // Try query parameter session ID
+                if (!sessionId) {
+                    sessionId = url.searchParams.get('sharedSessionId') ||
+                               url.searchParams.get('sessionId') || 
+                               url.searchParams.get('sid') || 
+                               url.searchParams.get('session') || '';
+                    if (sessionId) {
+                        console.log('Extracted session ID from query params:', sessionId);
+                    }
+                }
+                
+                // If we found a session ID, auto-fill it
+                if (sessionId) {
+                    const prompt = currentData.find(p => p.id === id);
+                    if (prompt && !prompt.sessionId) {
+                        prompt.sessionId = sessionId;
+                        const sessionInput = document.getElementById(`sessionId-${id}`);
+                        if (sessionInput) {
+                            sessionInput.value = sessionId;
+                            sessionInput.classList.add('has-value');
+                            console.log('Session ID auto-filled:', sessionId);
+                        }
+                    } else {
+                        console.log('Session ID field already has value, skipping auto-fill');
+                    }
+                } else {
+                    console.log('No session ID found in URL');
+                }
+                
+                // Auto-fill current date/time if not already set
+                const prompt = currentData.find(p => p.id === id);
+                if (prompt && !prompt.dateCaptured) {
+                    const now = new Date().toISOString().slice(0, 16);
+                    prompt.dateCaptured = now;
+                    const dateInput = document.getElementById(`dateCaptured-${id}`);
+                    if (dateInput) {
+                        dateInput.value = now;
+                        dateInput.classList.add('has-value');
+                        console.log('Date auto-filled:', now);
+                    }
+                }
+                
+                saveData();
+            } catch (e) {
+                // Invalid URL, skip auto-extraction
+                console.log('Could not parse DevUI link for auto-extraction:', e);
+            }
+        }
+
+        function markCompleted(id) {
+            const prompt = currentData.find(p => p.id === id);
+            if (!prompt.devuiLink) {
+                alert('⚠️ Please add a DevUI link before marking as completed!');
+                return;
+            }
+            
+            updateField(id, 'status', 'completed');
+            
+            if (!prompt.dateCaptured) {
+                const now = new Date().toISOString().slice(0, 16);
+                updateField(id, 'dateCaptured', now);
+                document.getElementById(`dateCaptured-${id}`).value = now;
+            }
+        }
+
+        function clearData(id) {
+            if (!confirm('Are you sure you want to clear all data for this prompt?')) {
+                return;
+            }
+
+            const prompt = currentData.find(p => p.id === id);
+            if (prompt) {
+                prompt.status = 'not-started';
+                prompt.devuiLink = '';
+                prompt.sessionId = '';
+                prompt.dateCaptured = '';
+                prompt.toolsObserved = '';
+                prompt.notes = '';
+                saveData();
+                renderPrompts();
+            }
+        }
+
+        function copyPrompt(id, button) {
+            const prompt = currentData.find(p => p.id === id);
+            if (prompt) {
+                navigator.clipboard.writeText(prompt.prompt).then(() => {
+                    button.textContent = '✓ Copied!';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = '📋 Copy Prompt';
+                        button.classList.remove('copied');
+                    }, 2000);
+                });
+            }
+        }
+
+        function exportForRegeneration() {
+            // Export localStorage data for use with check_annotated_meetings.py
+            const storageData = localStorage.getItem('bizchat_prompts_data');
+            if (!storageData) {
+                alert('⚠️ No saved data found in localStorage');
+                return;
+            }
+            
+            const blob = new Blob([storageData], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'manager_annotated_data.json';
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            alert('✅ Exported localStorage data!\\n\\nNext steps:\\n1. Move file to: WorkbackPlan/tools/manager_annotated_data.json\\n2. Run: python extract_from_manager_html.py\\n3. Regenerate prompts with --preserve-annotated flag');
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(currentData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `bizchat_devui_data_${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function createSubmissionPackage() {
+            // Get user email from metadata (or prompt for it)
+            const userEmail = prompt('Enter your email for identification:', '');
+            if (!userEmail) {
+                alert('Email is required for submission package');
+                return;
+            }
+
+            // Create submission metadata
+            const stats = {
+                total: currentData.length,
+                completed: currentData.filter(p => p.status === 'completed').length,
+                inProgress: currentData.filter(p => p.status === 'in-progress').length,
+                notStarted: currentData.filter(p => p.status === 'not-started').length
+            };
+
+            const metadata = {
+                submitter_email: userEmail,
+                submission_date: new Date().toISOString(),
+                package_version: '1.0',
+                statistics: stats,
+                completed_prompts: currentData.filter(p => p.status === 'completed').map(p => ({
+                    id: p.id,
+                    title: p.title,
+                    devuiLink: p.devuiLink,
+                    dateCaptured: p.dateCaptured
+                }))
+            };
+
+            // Create README for the submission
+            const readme = `# DevUI Test Data Submission
+
+**Submitted by**: ${userEmail}
+**Date**: ${new Date().toISOString().slice(0, 10)}
+**Completed Prompts**: ${stats.completed} / ${stats.total}
+
+## Files Included
+
+- \`devui_data.json\` - Complete prompt data with DevUI links
+- \`metadata.json\` - Submission metadata and statistics
+- \`README.txt\` - This file
+
+## Statistics
+
+- Total Prompts: ${stats.total}
+- Completed: ${stats.completed}
+- In Progress: ${stats.inProgress}
+- Not Started: ${stats.notStarted}
+
+## Next Steps
+
+Send this ZIP file to your team lead for aggregation and analysis.
+`;
+
+            // Prepare files for download
+            const files = {
+                'devui_data.json': JSON.stringify(currentData, null, 2),
+                'metadata.json': JSON.stringify(metadata, null, 2),
+                'README.txt': readme
+            };
+
+            // For browsers that support it, we'll create multiple downloads
+            // (Note: True ZIP creation requires a library like JSZip)
+            
+            // Simple approach: Download all files with instructions
+            alert(`📦 Submission Package Ready!\n\nThis will download 3 files:\n1. devui_data.json (your prompt data)\n2. metadata.json (statistics)\n3. README.txt (instructions)\n\nPlease create a folder, save all 3 files there, then ZIP the folder and send to your team lead.\n\nFolder name suggestion: devui_submission_${userEmail.split('@')[0]}_${new Date().toISOString().slice(0, 10)}`);
+
+            // Download each file
+            Object.entries(files).forEach(([filename, content], index) => {
+                setTimeout(() => {
+                    const blob = new Blob([content], {type: filename.endsWith('.json') ? 'application/json' : 'text/plain'});
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }, index * 500); // Stagger downloads
+            });
+        }
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                renderPrompts();
+            });
+        });
+
+        // Initialize
+        renderPrompts();
+    </script>
+</body>
+</html>
