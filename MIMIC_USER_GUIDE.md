@@ -67,7 +67,7 @@ Once Mimic generates the HTML report, you can use it to create detailed workback
 1.  **Select a Meeting**: In the Mimic HTML report, click on any high-value meeting.
 2.  **Copy Prompt**: Click the "Copy Prompt" button to get a specialized prompt designed for that specific meeting type.
 3.  **Generate in BizChat**: Paste the prompt into BizChat.
-4.  **Refine the Plan**: Ask BizChat to format the output as a table with the following columns:
+4.  **Refine the Plan**: The initial prompt starts the conversation. Guide BizChat to refine the plan until it matches your needs. A recommended target format is a table with the following columns:
     *   **Milestone**: Date of the activity.
     *   **Owner**: Person responsible.
     *   **Completed**: Checkbox or status.
@@ -94,5 +94,6 @@ Once Mimic generates the HTML report, you can use it to create detailed workback
 5.  **Share & Save**:
     *   When satisfied, type `/share` in BizChat.
     *   This creates a share card with a **DevUI link**.
-    *   Click the link to save the result (valid for 28 days).
+    *   **Copy the link** and paste it into the **DevUI Link** field for that meeting in the Mimic interface.
+    *   Add any additional comments about your analysis experience in the corresponding fields.
     *   Use the **ContextFlow** tool to extract the interaction trace for later processing.

@@ -100,4 +100,5 @@ The input JSON should be a list of meeting objects or an object with an `events`
 2.  **Get Prompt**: Copy the AI-optimized prompt from the Mimic report.
 3.  **BizChat**: Paste into BizChat to generate a detailed workback plan (Milestones, Owners, T-Minus schedule).
 4.  **Share**: Use `/share` in BizChat to generate a DevUI link.
-5.  **Extract**: Use ContextFlow to capture the interaction trace.
+5.  **Save**: Copy the link back into Mimic's "DevUI Link" field and add comments.
+6.  **Extract**: Use ContextFlow to capture the interaction trace.
