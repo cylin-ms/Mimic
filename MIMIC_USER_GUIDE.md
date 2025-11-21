@@ -52,6 +52,12 @@ python mimic.py your.email@company.com
     *   **5 Auto-Selected Meetings**: Your highest-value real meetings.
     *   **15 Candidates**: Other high-potential meetings you can choose to annotate.
 
+    ![Main Page](Mimic_cyl_portal.html.png)
+    *Main page of Mimic showing synthetic scenarios and high-value meetings.*
+
+    ![Meeting Selected](Mimic_cyl_portal_meeting_selected.png)
+    *Mimic with one meeting selected showing the WBP prompt and user input boxes.*
+
 ## Offline Mode
 
 If you already have a JSON file of your calendar events, you can skip authentication:
