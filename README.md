@@ -11,6 +11,14 @@ This package provides a high-performance, calibrated AI model for estimating the
 - **Privacy-First**: Runs entirely locally. No data leaves your machine.
 - **Categorization**: Automatically classifies meetings (Strategic, Operational, Social, etc.).
 
+## Screenshots
+
+![Main Page](Mimic_cyl_portal.html.png)
+*Main page showing synthetic scenarios and high-value meetings.*
+
+![Meeting Selected](Mimic_cyl_portal_meeting_selected.png)
+*Meeting selection view with WBP prompt and user input.*
+
 ## Installation
 
 The setup process will install Python dependencies and automatically download the required AI model (Qwen3-Embedding, ~1.1GB).
